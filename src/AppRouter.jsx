@@ -7,7 +7,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
 import MyVotesPage from './pages/MyVotesPage';
-import AdminPage from './pages/AdminPage';
+import AdminDashboard from './pages/AdminDashboard';
 import AdminRoute from './components/AdminRoute';
 
 export default function AppRouter() {
@@ -26,7 +26,7 @@ export default function AppRouter() {
                                 path="/admin"
                                 element={(
                                     <AdminRoute>
-                                        <AdminPage />
+                                        <AdminDashboard />
                                     </AdminRoute>
                                 )}
                             />

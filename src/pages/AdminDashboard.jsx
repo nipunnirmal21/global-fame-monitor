@@ -14,7 +14,7 @@ const EMPTY_FORM = {
     bio: ''
 };
 
-export default function AdminPage() {
+export default function AdminDashboard() {
     const { token, user } = useAuth();
     const { showToast } = useToast();
 

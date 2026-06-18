@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
                         username: data.username,
                         isAdmin: data.isAdmin
                     });
-                } else {
+                } else if (res.status === 401) {
                     setToken(null);
                     setUser(null);
                 }
