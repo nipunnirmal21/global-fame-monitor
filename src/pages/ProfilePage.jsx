@@ -1,10 +1,17 @@
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { famousPeople, generateSlug } from '../data/famousPeople';
 import ShareButton from '../components/ShareButton';
+import { getProfileUrl } from '../utils/shareProfile';
 
 const API_URL = 'http://localhost:5000/api';
+
+const truncateDescription = (text, maxLength = 160) => {
+    if (!text || text.length <= maxLength) return text;
+    return `${text.slice(0, maxLength - 3).trim()}...`;
+};
 
 export default function ProfilePage() {
     const { slug } = useParams();
@@ -179,8 +186,34 @@ export default function ProfilePage() {
 
     const badge = categoryBadges[celebrity.category] || categoryBadges.sports;
 
+    const profileUrl = getProfileUrl(slug);
+    const profileImage = wikiData?.originalImage || getImageUrl(celebrity.name);
+    const pageTitle = `${celebrity.name} | Global Fame Monitor`;
+    const pageDescription = truncateDescription(
+        wikiData?.description || wikiData?.extract || celebrity.bio
+    );
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+            <Helmet>
+                <title>{pageTitle}</title>
+                <meta name="description" content={pageDescription} />
+                <link rel="canonical" href={profileUrl} />
+
+                <meta property="og:title" content={pageTitle} />
+                <meta property="og:description" content={pageDescription} />
+                <meta property="og:type" content="profile" />
+                <meta property="og:url" content={profileUrl} />
+                <meta property="og:image" content={profileImage} />
+                <meta property="og:site_name" content="Global Fame Monitor" />
+                <meta property="profile:username" content={slug} />
+
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={pageTitle} />
+                <meta name="twitter:description" content={pageDescription} />
+                <meta name="twitter:image" content={profileImage} />
+            </Helmet>
+
             {/* Header */}
             <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
                 <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-4">

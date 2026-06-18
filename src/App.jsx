@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
 import CategoryTabs from './components/CategoryTabs';
@@ -36,8 +37,29 @@ function App() {
 
   const totalVotes = getTotalVotes();
 
+  const siteUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const defaultTitle = 'Global Fame Monitor - Real-Time Community Voting';
+  const defaultDescription =
+    'Vote for the world\'s 250 most famous people. Community-driven voting platform with real-time counters.';
+
   return (
     <div className="min-h-screen bg-white font-sans antialiased">
+      <Helmet>
+        <title>{defaultTitle}</title>
+        <meta name="description" content={defaultDescription} />
+        <link rel="canonical" href={siteUrl || '/'} />
+
+        <meta property="og:title" content="Global Fame Monitor - Community Voting Platform" />
+        <meta property="og:description" content={defaultDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={siteUrl || '/'} />
+        <meta property="og:site_name" content="Global Fame Monitor" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Global Fame Monitor - Community Voting Platform" />
+        <meta name="twitter:description" content={defaultDescription} />
+      </Helmet>
+
       {/* Header with Search */}
       <Header
         searchQuery={searchQuery}
