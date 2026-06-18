@@ -7,6 +7,8 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
 import MyVotesPage from './pages/MyVotesPage';
+import AdminPage from './pages/AdminPage';
+import AdminRoute from './components/AdminRoute';
 
 export default function AppRouter() {
     return (
@@ -20,6 +22,14 @@ export default function AppRouter() {
                             <Route path="/signup" element={<SignupPage />} />
                             <Route path="/profile/:slug" element={<ProfilePage />} />
                             <Route path="/my-votes" element={<MyVotesPage />} />
+                            <Route
+                                path="/admin"
+                                element={(
+                                    <AdminRoute>
+                                        <AdminPage />
+                                    </AdminRoute>
+                                )}
+                            />
                         </Routes>
                     </ToastProvider>
                 </AuthProvider>

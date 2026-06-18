@@ -1,6 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
-import { generateToken, protect } from '../middleware/auth.js';
+import { generateToken, protect, isUserAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -32,6 +32,7 @@ router.post('/register', async (req, res) => {
             res.status(201).json({
                 _id: user._id,
                 username: user.username,
+                isAdmin: isUserAdmin(user),
                 token: generateToken(user._id)
             });
         } else {
@@ -62,6 +63,7 @@ router.post('/login', async (req, res) => {
             res.json({
                 _id: user._id,
                 username: user.username,
+                isAdmin: isUserAdmin(user),
                 token: generateToken(user._id)
             });
         } else {
@@ -79,7 +81,8 @@ router.post('/login', async (req, res) => {
 router.get('/me', protect, async (req, res) => {
     res.json({
         _id: req.user._id,
-        username: req.user.username
+        username: req.user.username,
+        isAdmin: isUserAdmin(req.user)
     });
 });
 

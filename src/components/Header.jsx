@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Header({ searchQuery, onSearchChange, totalVotes }) {
     const [isFocused, setIsFocused] = useState(false);
-    const { isAuthenticated, user, logout } = useAuth();
+    const { isAuthenticated, user, logout, isAdmin } = useAuth();
 
     return (
         <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
@@ -98,6 +98,15 @@ export default function Header({ searchQuery, onSearchChange, totalVotes }) {
                                     <span>📊</span>
                                     <span>My Votes</span>
                                 </Link>
+                                {isAdmin && (
+                                    <Link
+                                        to="/admin"
+                                        className="hidden sm:flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                    >
+                                        <span>⚙️</span>
+                                        <span>Admin</span>
+                                    </Link>
+                                )}
                                 <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
                                     <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                                         <span className="text-white text-xs font-bold">

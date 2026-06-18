@@ -1,6 +1,18 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
+export const isUserAdmin = (user) => {
+    if (!user) return false;
+    if (user.isAdmin) return true;
+
+    const adminUsernames = (process.env.ADMIN_USERNAMES || '')
+        .split(',')
+        .map((name) => name.trim().toLowerCase())
+        .filter(Boolean);
+
+    return adminUsernames.includes(user.username?.toLowerCase());
+};
+
 // Protect routes - require authentication
 export const protect = async (req, res, next) => {
     let token;
@@ -30,6 +42,14 @@ export const protect = async (req, res, next) => {
     if (!token) {
         return res.status(401).json({ message: 'Not authorized, no token' });
     }
+};
+
+// Require admin privileges
+export const admin = (req, res, next) => {
+    if (!isUserAdmin(req.user)) {
+        return res.status(403).json({ message: 'Admin access required' });
+    }
+    next();
 };
 
 // Generate JWT token

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
@@ -7,13 +7,15 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const { login, loading, error, clearError } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirectTo = location.state?.from || '/';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         clearError();
         const result = await login(username, password);
         if (result.success) {
-            navigate('/');
+            navigate(redirectTo);
         }
     };
 

@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
     });
     const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
     const [loading, setLoading] = useState(false);
+    const [initializing, setInitializing] = useState(!!localStorage.getItem(TOKEN_KEY));
     const [error, setError] = useState(null);
 
     // Persist auth state
@@ -40,6 +41,40 @@ export const AuthProvider = ({ children }) => {
         }
     }, [user]);
 
+    // Refresh user profile (including admin status) on load
+    useEffect(() => {
+        const bootstrapAuth = async () => {
+            if (!token) {
+                setInitializing(false);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/auth/me`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    setUser({
+                        _id: data._id,
+                        username: data.username,
+                        isAdmin: data.isAdmin
+                    });
+                } else {
+                    setToken(null);
+                    setUser(null);
+                }
+            } catch (err) {
+                console.error('Failed to bootstrap auth:', err);
+            } finally {
+                setInitializing(false);
+            }
+        };
+
+        bootstrapAuth();
+    }, [token]);
+
     const login = async (username, password) => {
         setLoading(true);
         setError(null);
@@ -54,7 +89,7 @@ export const AuthProvider = ({ children }) => {
                 throw new Error(data.message || 'Login failed');
             }
             setToken(data.token);
-            setUser({ _id: data._id, username: data.username });
+            setUser({ _id: data._id, username: data.username, isAdmin: data.isAdmin });
             return { success: true };
         } catch (err) {
             setError(err.message);
@@ -78,7 +113,7 @@ export const AuthProvider = ({ children }) => {
                 throw new Error(data.message || 'Registration failed');
             }
             setToken(data.token);
-            setUser({ _id: data._id, username: data.username });
+            setUser({ _id: data._id, username: data.username, isAdmin: data.isAdmin });
             return { success: true };
         } catch (err) {
             setError(err.message);
@@ -98,8 +133,10 @@ export const AuthProvider = ({ children }) => {
         user,
         token,
         loading,
+        initializing,
         error,
         isAuthenticated: !!token,
+        isAdmin: !!user?.isAdmin,
         login,
         register,
         logout,
