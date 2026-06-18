@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { famousPeople, generateSlug } from '../data/famousPeople';
+import ShareButton from '../components/ShareButton';
 
 const API_URL = 'http://localhost:5000/api';
 
@@ -270,7 +271,7 @@ export default function ProfilePage() {
                         <div className="border-t border-gray-100 pt-8">
                             <h2 className="text-lg font-semibold text-gray-900 mb-4">Community Votes</h2>
 
-                            <div className="flex flex-wrap gap-4">
+                            <div className="flex flex-wrap items-center gap-4">
                                 {/* Like Button */}
                                 <button
                                     onClick={() => handleVote('like')}
@@ -298,6 +299,8 @@ export default function ProfilePage() {
                                     <span className="text-lg font-semibold">{votes.dislikes.toLocaleString()}</span>
                                     {userVote === 'dislike' && <span className="text-sm">Disliked</span>}
                                 </button>
+
+                                <ShareButton name={celebrity.name} slug={slug} />
                             </div>
 
                             {!isAuthenticated && (

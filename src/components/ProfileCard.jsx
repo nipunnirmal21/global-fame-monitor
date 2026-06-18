@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import VoteButton from './VoteButton';
+import ShareButton from './ShareButton';
 import { generateSlug } from '../data/famousPeople';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from './ToastProvider';
@@ -159,6 +160,7 @@ export default function ProfileCard({ person, votes = DEFAULT_VOTES, onLike, onD
                         isActive={userVote === 'dislike'}
                         locked={!isAuthenticated}
                     />
+                    <ShareButton name={person.name} slug={profileSlug} size="sm" className="ml-auto" />
                 </div>
 
                 {/* Login Prompt for Guests */}
