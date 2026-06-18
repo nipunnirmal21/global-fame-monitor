@@ -1,8 +1,32 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
 
 const API_URL = 'http://localhost:5000/api';
+const SOCKET_URL = 'http://localhost:5000';
 const DEBOUNCE_MS = 300; // Minimum time between votes per celebrity
+
+const applyVoteDelta = (current, { action, type, previousType }) => {
+    const counts = {
+        likes: current?.likes || 0,
+        dislikes: current?.dislikes || 0
+    };
+
+    if (action === 'created') {
+        if (type === 'like') counts.likes += 1;
+        else counts.dislikes += 1;
+    } else if (action === 'removed') {
+        if (type === 'like') counts.likes = Math.max(0, counts.likes - 1);
+        else counts.dislikes = Math.max(0, counts.dislikes - 1);
+    } else if (action === 'updated') {
+        if (previousType === 'like') counts.likes = Math.max(0, counts.likes - 1);
+        else counts.dislikes = Math.max(0, counts.dislikes - 1);
+        if (type === 'like') counts.likes += 1;
+        else counts.dislikes += 1;
+    }
+
+    return counts;
+};
 
 export const useVotesApi = () => {
     const { isAuthenticated, token } = useAuth();
@@ -34,6 +58,31 @@ export const useVotesApi = () => {
         };
 
         fetchAllVotes();
+    }, []);
+
+    // Listen for real-time vote updates from other clients
+    useEffect(() => {
+        const socket = io(SOCKET_URL, {
+            transports: ['websocket', 'polling']
+        });
+
+        socket.on('voteUpdate', (payload) => {
+            const { celebrityId } = payload;
+
+            // Skip updates for votes this client is currently submitting
+            if (inFlightRef.current[celebrityId]) {
+                return;
+            }
+
+            setVotes(prev => ({
+                ...prev,
+                [celebrityId]: applyVoteDelta(prev[celebrityId], payload)
+            }));
+        });
+
+        return () => {
+            socket.disconnect();
+        };
     }, []);
 
     // Fetch user's votes when authenticated

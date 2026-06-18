@@ -4,6 +4,13 @@ import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
+const emitVoteUpdate = (req, payload) => {
+    const io = req.app.get('io');
+    if (io) {
+        io.emit('voteUpdate', payload);
+    }
+};
+
 // @route   POST /api/votes
 // @desc    Submit or update a vote (ATOMIC OPERATIONS)
 // @access  Private
@@ -28,6 +35,11 @@ router.post('/', protect, async (req, res) => {
             if (existingVote.type === type) {
                 // Same vote type - remove the vote (toggle off) ATOMICALLY
                 await Vote.findOneAndDelete({ userId, celebrityId });
+                emitVoteUpdate(req, {
+                    celebrityId,
+                    action: 'removed',
+                    type
+                });
                 return res.json({
                     message: 'Vote removed',
                     action: 'removed',
@@ -40,6 +52,12 @@ router.post('/', protect, async (req, res) => {
                     { $set: { type } },
                     { new: true }
                 );
+                emitVoteUpdate(req, {
+                    celebrityId,
+                    action: 'updated',
+                    type,
+                    previousType: existingVote.type
+                });
                 return res.json({
                     message: 'Vote updated',
                     action: 'updated',
@@ -52,6 +70,12 @@ router.post('/', protect, async (req, res) => {
         const vote = await Vote.create({
             userId,
             celebrityId,
+            type
+        });
+
+        emitVoteUpdate(req, {
+            celebrityId,
+            action: 'created',
             type
         });
 
